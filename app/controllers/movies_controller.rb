@@ -14,8 +14,8 @@ class MoviesController < ApplicationController
     @sort_param_hash = params[:sort]
     @all_ratings = Movie.get_uniq_ratings
     @ratings_checked = params[:ratings]
-    session[:ratings] = @all_ratings
-    session[:sort] = params[:sort]
+    session[:ratings] ||= @all_ratings
+    session[:sort] ||= 'id'
     @title_hilited = "hilite" if params[:sort] == 'title'
     @date_hilited = "hilite" if params[:sort] == 'release_date'
     session[:ratings] = @ratings_checked.keys if @ratings_checked
