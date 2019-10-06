@@ -14,17 +14,19 @@ class MoviesController < ApplicationController
     @sort_param_hash = params[:sort]
     @all_ratings = Movie.get_uniq_ratings
     @ratings_checked = params[:ratings]
+    session[:ratings] = @all_ratings
+    session[:sort] = params[:sort]
     @title_hilited = "hilite" if params[:sort] == 'title'
     @date_hilited = "hilite" if params[:sort] == 'release_date'
-    @movies = Movie.order(@sort_param_hash)
-    if @ratings_checked
-      @movies = Movie.where(:rating=>@ratings_checked.keys).order(@sort_param_hash)
-    else
-      @movies = Movie.order(@sort_param_hash)
+    session[:ratings] = @ratings_checked.keys if @ratings_checked
+    session[:sort] = @sort_param_hash if @sort_param_hash
+    if @ratings_checked.nil? || @sort_param_hash.nil?
+      flash.keep
     end
-    if !@ratings_checked
-      @ratings_checked = Hash.new(@all_ratings)
-    end
+    redirect_to movies_path(ratings: Hash[session[:ratings].map {|r| [r,1]}], sort: session[:sort]) if params[:ratings].nil? || params[:sort].nil?
+    @ratings = session[:ratings]
+    @sort = session[:sort]
+    @movies = Movie.where(rating: @ratings).order(@sort)
   end
 
   def new
